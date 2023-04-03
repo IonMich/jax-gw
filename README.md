@@ -1,4 +1,4 @@
-# jax_gwb
+# jax_gw
 
 This is a repository for ground-based and space-borne gravitational-wave (GW) analysis using JAX, with the main focus on the GW stochastic background. The autodiff capabilities of JAX allow for fast and efficient likelihood evaluation, which is crucial for GW parameter estimation.
 
