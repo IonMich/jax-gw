@@ -4,3 +4,5 @@ theme:
 plugins:
   - search
   - mkdocstrings
+nav:
+  - "Antenna Pattern": antenna.md
