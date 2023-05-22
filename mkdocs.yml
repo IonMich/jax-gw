@@ -1,3 +1,6 @@
 site_name: JAX GW
 theme:
   name: material
+plugins:
+  - search
+  - mkdocstrings
