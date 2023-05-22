@@ -3,6 +3,10 @@ theme:
   name: material
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
 nav:
   - "Antenna Pattern": antenna.md

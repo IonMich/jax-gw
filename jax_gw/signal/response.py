@@ -12,13 +12,14 @@ def antenna_pattern(
     """Calculate the antenna pattern for a given source direction.
 
     Parameters
-    ----------
+    -------
     u_hat : jnp.array
         First unit vector in the transverse plane of the incoming signal.
     v_hat : jnp.array
         Second unit vector in the transverse plane of the incoming signal.
     arm_direction : jnp.array
         Unit vector pointing along the arm from the emitter to the receiver.
+
     Returns
     -------
     jnp.array

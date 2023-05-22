@@ -3,5 +3,5 @@
 ::: jax_gw.signal.response.antenna_pattern
     handler: python
     options:
-      show_root_heading: false
-      show_source: false
+      show_root_heading: true
+      show_source: true
