@@ -9,4 +9,4 @@ plugins:
           options:
             docstring_style: numpy
 nav:
-  - "Antenna Pattern": antenna.md
+  - "Detector Response": response.md
