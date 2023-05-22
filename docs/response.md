@@ -1,7 +1,7 @@
-# Documentation for `antenna_pattern`
+# Documentation for `detector.response`
 
-::: jax_gw.signal.response.antenna_pattern
+::: jax_gw.detector.response
     handler: python
     options:
-      show_root_heading: true
+      show_root_heading: false
       show_source: true
