@@ -13,7 +13,7 @@ def get_directional_basis(ecl_theta: float, ecl_phi: float) -> jnp.array:
     ecl_theta : float
         Ecliptic latitude of the source.
     ecl_phi : float
-        Ecliptic longitude of the source.
+        Ecliptic phi of the source.
 
     Returns
     -------
@@ -44,11 +44,11 @@ def flatten_sky(i_theta: int, j_phi: int, N_phi: int) -> int:
     Parameters
     ----------
     i_theta : int
-        Index of the ecliptic latitude.
+        Index of the ecliptic theta.
     j_phi : int
-        Index of the ecliptic longitude.
+        Index of the ecliptic phi.
     N_phi : int
-        Number of ecliptic longitudes.
+        Number of ecliptic phis.
 
     Returns
     -------
@@ -66,7 +66,7 @@ def unflatten_sky(index: int, N_phi: int):
     index : int
         Flattened index.
     N_phi : int
-        Number of ecliptic longitudes.
+        Number of ecliptic phis.
 
     Returns
     -------
@@ -85,9 +85,9 @@ def flat_to_matrix_sky_indices(N_theta: int, N_phi: int):
     Parameters
     ----------
     N_theta : int
-        Number of ecliptic latitudes.
+        Number of ecliptic thetas.
     N_phi : int
-        Number of ecliptic longitudes.
+        Number of ecliptic phis.
 
     Returns
     -------
@@ -115,9 +115,9 @@ def unflatten_sky_axis(matrix, axis: int, N_theta: int, N_phi: int) -> jnp.array
     axis : int
         Axis to unflatten.
     N_theta : int
-        Number of ecliptic latitudes.
+        Number of ecliptic thetas.
     N_phi : int
-        Number of ecliptic longitudes.
+        Number of ecliptic phis.
 
     Returns
     -------

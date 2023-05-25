@@ -122,8 +122,8 @@ def ecliptic_timeshift(
 
     Parameters
     ----------
-    equatorial_coords : jnp.array
-        Vector in equatorial coordinates.
+    ecliptic_coords : jnp.array
+        Vector in ecliptic  coordinates.
     angle : jnp.array
         Angle to rotate around the z-axis of equatorial coordinates.
     tilt : float
@@ -142,13 +142,15 @@ def ecliptic_timeshift(
     return ecliptic_coords
 
 
-def create_cartwheel_orbit(ecc, r, N, times: jnp.array) -> jnp.array:
+def create_cartwheel_orbit(ecc: float, r: float, N: int, times: jnp.array) -> jnp.array:
     """Create a cartwheel orbit.
 
     Parameters
     ----------
     ecc : float
-        Eccentricity of the orbit.
+        Eccentricity of the orbits.
+    r : float
+        Radius of the orbit of the guiding center.
     N : int
         Number of spacecraft.
     times : jnp.array
@@ -189,13 +191,17 @@ def create_cartwheel_orbit(ecc, r, N, times: jnp.array) -> jnp.array:
     return jnp.stack([x, y, z], axis=1)
 
 
-def create_cartwheel_arm_lengths(ecc, r, N, times: jnp.array) -> jnp.array:
+def create_cartwheel_arm_lengths(
+    ecc: float, r: float, N: int, times: jnp.array
+) -> jnp.array:
     """Create the scalar separations for a cartwheel orbit.
 
     Parameters
     ----------
     ecc : float
         Eccentricity of the orbit.
+    r : float
+        Radius of the orbit of the guiding center.
     N : int
         Number of spacecraft.
     times : jnp.array
@@ -242,18 +248,18 @@ def create_cartwheel_arm_lengths(ecc, r, N, times: jnp.array) -> jnp.array:
 def get_separations(orbits: jnp.array) -> jnp.array:
     """Calculate the vector separations between the spacecraft.
 
-    r_ij = r_i - r_j
+    `r_{ij} = r_i - r_j`
 
     Parameters
     ----------
     orbits : jnp.ndarray
-        Array of shape (N, 3, N_steps) containing the orbits of the N
+        Array of shape `(N, 3, N_steps)` containing the orbits of the N
         spacecraft.
 
     Returns
     -------
     jnp.ndarray
-        Vector separations. Dimensions: (N_steps, N, N, 3).
+        Vector separations. Dimensions: `(N_steps, N, N, 3)`.
     """
     # calculate the vector separations
     N_steps, N = orbits.shape[2], orbits.shape[0]
@@ -276,7 +282,7 @@ def get_arm_lengths(separations: jnp.array) -> jnp.array:
     Returns
     -------
     jnp.ndarray
-        Arm lengths in shape (N_steps, N, N).
+        Arm lengths in shape `(N_steps, N, N)`.
     """
     d = jnp.linalg.norm(separations, axis=-1)
 
@@ -287,10 +293,10 @@ def get_receiver_positions(
     position: jnp.array,
 ) -> jnp.array:
     """Calculate the receiver positions of the spacecraft for a collection of arms.
-    Since the separation matrix is defined as r[i, j] = r[i] - r[j], the
-    receiver positions must be defined via r_pos[i, j, 3, N...] = pos[i, 3, N...].
-    Positions has shape (N, 3, N_steps) while separations has shape
-    (N_steps, N, N, 3). Therefore, we need to create a newaxis for the j index,
+    Since the separation matrix is defined as `r[i, j] = r[i] - r[j]`, the
+    receiver positions must be defined via `r_pos[i, j, 3, N...] = pos[i, 3, N...]`.
+    Positions has shape `(N, 3, N_steps)` while separations has shape
+    `(N_steps, N, N, 3)`. Therefore, we need to create a newaxis for the `j` index,
     and finally move the time axis to the front.
 
     Parameters

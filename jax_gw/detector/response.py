@@ -1,4 +1,3 @@
-import jax
 import jax.numpy as jnp
 
 from jax_gw.detector.orbits import flat_index, get_arm_lengths, path_from_indices
@@ -82,10 +81,10 @@ def response_function(
         Frequencies of the gravitational wave.
     receiver_positions : jnp.array
         Positions of the receivers.
-    transfer_function : jnp.array
+    full_transfer : jnp.array
         Transfer function for the given source direction.
         Shape: (N_sky, N_freq, N_pair, N_times)
-    antenna_pattern : jnp.array
+    antennae : jnp.array
         Plus and cross antenna pattern functions.
         Shape: (N_sky, N_pair, N_times, N_pol)
 

@@ -1,6 +1,23 @@
 site_name: JAX GW
+
+repo_url: https://github.com/ionmich/jax-gw
+repo_name: ionmich/jax-gw
+
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.footer
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 plugins:
   - search
   - mkdocstrings:
@@ -9,4 +26,14 @@ plugins:
           options:
             docstring_style: numpy
 nav:
+  - "Home": index.md
+  - "Detector Motion": orbits.md
   - "Detector Response": response.md
+  - "Sky Coordinates": sky.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
