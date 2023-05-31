@@ -2,3 +2,5 @@ pre-commit
 black
 mkdocs-material
 mkdocstrings-python
+jaxlib
+jax
