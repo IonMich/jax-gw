@@ -1,9 +1,11 @@
 import jax
+from jax import Array
+from jax.typing import ArrayLike
 from jax import config
 
-config.update("jax_enable_x64", True)
-
 import jax.numpy as jnp
+
+config.update("jax_enable_x64", True)
 
 # in 1/yr
 FREQ_CENTER_ORBIT = 1.0
@@ -15,7 +17,7 @@ EARTH_Z_LAT = jnp.pi / 2.0 - EARTH_TILT
 EARTH_Z_LON = -jnp.pi / 2.0
 
 
-def create_circular_orbit_xy(r: float, f_orb: float, times: jnp.array) -> jnp.array:
+def create_circular_orbit_xy(r: float, f_orb: float, times: ArrayLike) -> Array:
     """Create an orbit around the Sun with x and y Arms.
 
     Parameters
@@ -38,15 +40,15 @@ def create_circular_orbit_xy(r: float, f_orb: float, times: jnp.array) -> jnp.ar
     return jnp.stack([x, y, z], axis=0)
 
 
-def lat_lon_to_cartesian(lat: float, lon: float, r: float = 1) -> jnp.array:
+def lat_lon_to_cartesian(lat: float, lon: float, r: float = 1) -> Array:
     """Convert latitude and longitude to equatorial cartesian coordinates.
 
     Parameters
     ----------
     lat : float
-        Latitude.
+        Latitude in radians.
     lon : float
-        Longitude.
+        Longitude in radians.
     r : float
         Radius.
 
@@ -62,20 +64,20 @@ def lat_lon_to_cartesian(lat: float, lon: float, r: float = 1) -> jnp.array:
     return jnp.stack([x, y, z], axis=0)
 
 
-def equatorial_timeshift(equatorial_coords: jnp.array, angle: jnp.array) -> jnp.array:
+def equatorial_timeshift(equatorial_coords: ArrayLike, angle: ArrayLike) -> Array:
     """Rotate a vector by an angle `angle` around the z-axis of equatorial coordinates.
     Shift equatorial coordinates to a hour `angle` later.
 
     Parameters
     ----------
-    equatorial_coords : jnp.array
+    equatorial_coords : ArrayLike
         Vector in equatorial coordinates.
-    angle : jnp.array
+    angle : ArrayLike
         Angle to rotate around the z-axis.
 
     Returns
     -------
-    jnp.array
+    Array
         Vector in equatorial coordinates at time shifted by `angle`.
     """
     x, y, z = equatorial_coords
@@ -88,20 +90,20 @@ def equatorial_timeshift(equatorial_coords: jnp.array, angle: jnp.array) -> jnp.
     return jnp.stack([x_return, y_return, z_return], axis=0)
 
 
-def axial_tilt(equatorial_coords: jnp.array, earth_tilt: float) -> jnp.array:
+def axial_tilt(equatorial_coords: ArrayLike, earth_tilt: float) -> Array:
     """Rotate a vector by an angle `tilt` around the x-axis.
-    Convert from equatorial to ecliptic coordinates.
+    Convert from equatorial to ecliptic coordinates when `earth_tilt` is the positive Earth's tilt.
 
     Parameters
     ----------
-    equatorial_coords : jnp.array
+    equatorial_coords : ArrayLike
         Vector in equatorial coordinates.
     earth_tilt : float
         Angle to rotate around the x-axis.
 
     Returns
     -------
-    jnp.array
+    Array
         Vector in ecliptic coordinates.
     """
     rot_matrix = jnp.array(
@@ -115,23 +117,23 @@ def axial_tilt(equatorial_coords: jnp.array, earth_tilt: float) -> jnp.array:
 
 
 def ecliptic_timeshift(
-    ecliptic_coords: jnp.array, angle: jnp.array, tilt: float
-) -> jnp.array:
+    ecliptic_coords: ArrayLike, angle: ArrayLike, tilt: float
+) -> Array:
     """Rotate a vector in ecliptic coordinates by an angle `angle` around the z-axis of equatorial coordinates.
     Shift ecliptic coordinates to a hour `angle` later.
 
     Parameters
     ----------
-    ecliptic_coords : jnp.array
+    ecliptic_coords : ArrayLike
         Vector in ecliptic  coordinates.
-    angle : jnp.array
+    angle : ArrayLike
         Angle to rotate around the z-axis of equatorial coordinates.
     tilt : float
         Angle to rotate around the x-axis.
 
     Returns
     -------
-    jnp.array
+    Array
         Vector in equatorial coordinates at time shifted by `angle`.
     """
     equatorial_initial = axial_tilt(ecliptic_coords, -tilt)
@@ -142,7 +144,9 @@ def ecliptic_timeshift(
     return ecliptic_coords
 
 
-def create_cartwheel_orbit(ecc: float, r: float, N: int, times: jnp.array) -> jnp.array:
+def create_cartwheel_orbit(
+    ecc: float, r: float, N: int, times: ArrayLike, timeshift=0
+) -> Array:
     """Create a cartwheel orbit.
 
     Parameters
@@ -153,17 +157,17 @@ def create_cartwheel_orbit(ecc: float, r: float, N: int, times: jnp.array) -> jn
         Radius of the orbit of the guiding center.
     N : int
         Number of spacecraft.
-    times : jnp.array
+    times : ArrayLike
         Times at which to evaluate the orbit.
 
     Returns
     -------
-    jnp.array
+    Array
         Orbit. Dimensions: (N, 3, len(times)).
     """
     # kappa is 20 degrees behind Earth
     kappa_orbit = -20.0 / 360.0 * 2 * jnp.pi
-    lambda_cart = 0.0
+    lambda_cart = timeshift
     alpha = 2.0 * jnp.pi * FREQ_CENTER_ORBIT * times + kappa_orbit
     beta_n = jnp.arange(N)[:, jnp.newaxis] * 2.0 * jnp.pi / N + lambda_cart
 
@@ -192,8 +196,8 @@ def create_cartwheel_orbit(ecc: float, r: float, N: int, times: jnp.array) -> jn
 
 
 def create_cartwheel_arm_lengths(
-    ecc: float, r: float, N: int, times: jnp.array
-) -> jnp.array:
+    ecc: float, r: float, N: int, times: ArrayLike
+) -> Array:
     """Create the scalar separations for a cartwheel orbit.
 
     Parameters
@@ -245,20 +249,20 @@ def create_cartwheel_arm_lengths(
     return d
 
 
-def get_separations(orbits: jnp.array) -> jnp.array:
+def get_separations(orbits: ArrayLike) -> Array:
     """Calculate the vector separations between the spacecraft.
 
     `r_{ij} = r_i - r_j`
 
     Parameters
     ----------
-    orbits : jnp.ndarray
+    orbits : ArrayLike
         Array of shape `(N, 3, N_steps)` containing the orbits of the N
         spacecraft.
 
     Returns
     -------
-    jnp.ndarray
+    Array
         Vector separations. Dimensions: `(N_steps, N, N, 3)`.
     """
     # calculate the vector separations
@@ -271,7 +275,7 @@ def get_separations(orbits: jnp.array) -> jnp.array:
     return r
 
 
-def get_arm_lengths(separations: jnp.array) -> jnp.array:
+def get_arm_lengths(separations: ArrayLike) -> Array:
     """Calculate the arm lengths from the vector separations.
 
     Parameters
@@ -290,8 +294,8 @@ def get_arm_lengths(separations: jnp.array) -> jnp.array:
 
 
 def get_receiver_positions(
-    position: jnp.array,
-) -> jnp.array:
+    position: ArrayLike,
+) -> Array:
     """Calculate the receiver positions of the spacecraft for a collection of arms.
     Since the separation matrix is defined as `r[i, j] = r[i] - r[j]`, the
     receiver positions must be defined via `r_pos[i, j, 3, N...] = pos[i, 3, N...]`.
@@ -301,12 +305,12 @@ def get_receiver_positions(
 
     Parameters
     ----------
-    position : jnp.array
+    position : ArrayLike
         Position of the spacecraft. Shape (N, 3, ...).
 
     Returns
     -------
-    jnp.array
+    Array
         Receiver spacecraft positions for the arm. Shape broadcastable to
         the shape of separations.
     """
@@ -322,8 +326,8 @@ def get_receiver_positions(
 
 
 def get_emitter_positions(
-    position: jnp.array,
-) -> jnp.array:
+    position: ArrayLike,
+) -> Array:
     """Calculate the emitter positions of the spacecraft for a given arm.
     Since the separation matrix is defined as r[i, j] = r[i] - r[j], the
     emitter positions must be calculated as e_pos[i, j, 3, N...] = pos[j, 3, N...].
@@ -377,7 +381,7 @@ def flat_index(i: jnp.int32, j: jnp.int32, N: int) -> jnp.int32:
 
 def flat_to_matrix_indices(
     N: int,
-) -> jnp.array:
+) -> Array:
     """Calculate the (N*(N-1), 2) matrix of flat indices for a given number of
     spacecraft.
 
@@ -406,8 +410,8 @@ def flat_to_matrix_indices(
 
 @jax.jit
 def flatten_pairs(
-    matrix_form: jnp.array,
-) -> jnp.array:
+    matrix_form: ArrayLike,
+) -> Array:
     """Flatten the separations or receiver positions from a pair of indices
     to a single dimension of length N * (N - 1).
 
@@ -434,7 +438,7 @@ def flatten_pairs(
     return vmapped_flat_index(receivers, emitters)
 
 
-def path_from_indices(indices: jnp.array) -> jnp.array:
+def path_from_indices(indices: ArrayLike) -> Array:
     """Convert an array of indices of spacecraft and length N_depth+1 to a path
     that is a 1D array of length N_depth and contains the arm index for each part of the path.
 
@@ -460,22 +464,32 @@ def path_from_indices(indices: jnp.array) -> jnp.array:
 def earthbound_ifo_pipeline(
     lat: float,
     lon: float,
-    times: jnp.array,
+    times: ArrayLike,
     r: float,
     L_arm: float,
-) -> jnp.array:
+    psi: float = 0,
+    beta_arm: float = jnp.pi / 2,
+) -> Array:
     """Create the orbits of the spacecraft for an Earthbound interferometer.
     Currently only works for perpendicular arms and assumes a circular orbit
     with the Earth modeled as a sphere.
 
     Parameters
     ----------
+    lat : float
+        Earth latitude in radians. Zero is the equator, +pi/2 is the North pole.
+    lon : float
+        Earth longitude in radians. Zero is the Greenwich meridian, positive is East.
     times : jnp.array
         Times at which to evaluate the orbit in years.
     r : float
         Radius of the orbit in AU.
     L_arm : float
         Length of the arms in km.
+    psi : float
+        Angle between the X arm and local East in radians. Positive North of East. The Y arm is rotated by an additional pi/2.
+    beta_arm : float
+        Angle between the X and Y arms in radians.
 
     Returns
     -------
@@ -496,9 +510,42 @@ def earthbound_ifo_pipeline(
     r_detector = axial_tilt(r_detector, EARTH_TILT)
 
     r_earth_in_km = 6371.0
+    # local East unit direction at the detector
+    north_pole_equatorial = jnp.array([0.0, 0.0, 1.0])
+    local_east = jnp.cross(north_pole_equatorial, r_detector_initial_equatorial)
+    local_east = local_east / jnp.linalg.norm(local_east)
+    # rotate the arms by psi with respect to r_detector_initial_equatorial
+    # by applying the matrix form of Rodrigues' rotation formula
+    K_matrix = jnp.array(
+        [
+            [0.0, -r_detector_initial_equatorial[2], r_detector_initial_equatorial[1]],
+            [r_detector_initial_equatorial[2], 0.0, -r_detector_initial_equatorial[0]],
+            [-r_detector_initial_equatorial[1], r_detector_initial_equatorial[0], 0.0],
+        ]
+    )
+    rotation_matrix_psi = (
+        jnp.eye(3) + jnp.sin(psi) * K_matrix + (1 - jnp.cos(psi)) * K_matrix @ K_matrix
+    )
+    rotation_matrix_beta = (
+        jnp.eye(3)
+        + jnp.sin(beta_arm) * K_matrix
+        + (1 - jnp.cos(beta_arm)) * K_matrix @ K_matrix
+    )
+    x_arm_direction = rotation_matrix_psi @ local_east
+    y_arm_direction = rotation_matrix_beta @ x_arm_direction
+    print(x_arm_direction)
+    print(y_arm_direction)
+    arm_length = L_arm / r_earth_in_km
+    x_arm_local_equatorial_initial = arm_length * x_arm_direction
+    y_arm_local_equatorial_initial = arm_length * y_arm_direction
+    # convert from equatorial to ecliptic coordinates
+    x_arm_ecliptic_initial = axial_tilt(x_arm_local_equatorial_initial, +EARTH_TILT)
+    print(x_arm_ecliptic_initial)
+    y_arm_ecliptic_initial = axial_tilt(y_arm_local_equatorial_initial, +EARTH_TILT)
+    print(y_arm_ecliptic_initial)
 
-    x_arm_ecliptic_initial = jnp.array([L_arm / r_earth_in_km, 0.0, 0.0])
-    y_arm_ecliptic_initial = jnp.array([0.0, L_arm / r_earth_in_km, 0.0])
+    # x_arm_ecliptic_initial = jnp.array([L_arm / r_earth_in_km, 0.0, 0.0])
+    # y_arm_ecliptic_initial = jnp.array([0.0, L_arm / r_earth_in_km, 0.0])
     x_arm = ecliptic_timeshift(x_arm_ecliptic_initial, hour_angle, EARTH_TILT)
     y_arm = ecliptic_timeshift(y_arm_ecliptic_initial, hour_angle, EARTH_TILT)
 
