@@ -1,3 +1,4 @@
+[![Pytest](https://github.com/IonMich/jax-gw/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/IonMich/jax-gw/actions/workflows/tests.yml)
 # jax_gw
 
 This is a repository for ground-based and space-borne gravitational-wave (GW) analysis using JAX, with the main focus on the GW stochastic background. The autodiff capabilities of JAX allow for fast and efficient likelihood evaluation, which is crucial for GW parameter estimation.
