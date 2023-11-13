@@ -1,9 +1,12 @@
+from jax import Array
+from jax.typing import ArrayLike
+
 import jax.numpy as jnp
 
 
 def WD_binary_source(
-    A: float, f_0: float, f_0_dot: float, phi_0: float, times: jnp.array
-) -> jnp.array:
+    A: float, f_0: float, f_0_dot: float, phi_0: float, times: ArrayLike
+) -> Array:
     """Create the plus and cross polarizations for a WD binary at the source frame.
 
     Parameters
@@ -16,12 +19,12 @@ def WD_binary_source(
         Frequency derivative of the wave.
     phi_0 : float
         Initial phase of the wave.
-    times : jnp.array
+    times : ArrayLike
         Times at which to evaluate the orbit.
 
     Returns
     -------
-    jnp.array
+    Array
         Plus and cross polarization waveforms. Dimensions: (2, len(times)).
     """
     years_to_seconds = 365.25 * 24.0 * 3600.0
@@ -40,9 +43,7 @@ def WD_binary_source(
     return jnp.stack([plus, cross], axis=1)
 
 
-def source_to_detector_frame(
-    iota: float, psi: float, waveforms: jnp.array
-) -> jnp.array:
+def source_to_detector_frame(iota: float, psi: float, waveforms: ArrayLike) -> Array:
     """Convert the plus and cross polarizations from the source frame to the detector frame.
 
     Parameters
@@ -51,12 +52,12 @@ def source_to_detector_frame(
         Inclination of the source.
     psi : float
         Polarization angle of the source.
-    waveforms : jnp.array
+    waveforms : ArrayLike
         Plus and cross polarization waveforms. Dimensions: (2, len(times)).
 
     Returns
     -------
-    jnp.array
+    Array
         Plus and cross polarization waveforms. Dimensions: (2, len(times)).
     """
     cos_iota = jnp.cos(iota)
