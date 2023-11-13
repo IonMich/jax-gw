@@ -31,7 +31,7 @@ def plot_response(
     z = plotted_response * jnp.outer(jnp.cos(v), jnp.ones(jnp.size(u)))
 
     # Plot the surface
-    ax.plot_surface(x, y, z)
+    ax.plot_surface(x, y, z, zorder=0, alpha=0.3, color="C0")
 
     # Set an equal aspect ratio
     ax.set_aspect("equal")
