@@ -8,7 +8,7 @@ import jax.numpy as jnp
 config.update("jax_enable_x64", True)
 
 # in 1/yr
-FREQ_CENTER_ORBIT = 1.0
+FREQ_EARTH_ORBIT = 1.0
 
 EARTH_TILT = 23.44 * jnp.pi / 180.0
 # lat and lon on the Earth needed
@@ -145,7 +145,12 @@ def ecliptic_timeshift(
 
 
 def create_cartwheel_orbit(
-    ecc: float, r: float, N: int, times: ArrayLike, timeshift=0
+    ecc: float,
+    r: float,
+    N: int,
+    times: ArrayLike,
+    timeshift: float = 0,
+    freq: float = 1.0,
 ) -> Array:
     """Create a cartwheel orbit.
 
@@ -154,21 +159,21 @@ def create_cartwheel_orbit(
     ecc : float
         Eccentricity of the orbits.
     r : float
-        Radius of the orbit of the guiding center.
+        Radius of the orbit of the guiding center. Units: AU.
     N : int
         Number of spacecraft.
     times : ArrayLike
-        Times at which to evaluate the orbit.
+        Times at which to evaluate the orbit. Units: years.
 
     Returns
     -------
     Array
-        Orbit. Dimensions: (N, 3, len(times)).
+        Orbit. Dimensions: (N, 3, len(times)). Units: AU.
     """
     # kappa is 20 degrees behind Earth
     kappa_orbit = -20.0 / 360.0 * 2 * jnp.pi
     lambda_cart = timeshift
-    alpha = 2.0 * jnp.pi * FREQ_CENTER_ORBIT * times + kappa_orbit
+    alpha = 2.0 * jnp.pi * freq * times + kappa_orbit
     beta_n = jnp.arange(N)[:, jnp.newaxis] * 2.0 * jnp.pi / N + lambda_cart
 
     exp_1_0 = jnp.exp(1j * (alpha))
@@ -196,7 +201,11 @@ def create_cartwheel_orbit(
 
 
 def create_cartwheel_arm_lengths(
-    ecc: float, r: float, N: int, times: ArrayLike
+    ecc: float,
+    r: float,
+    N: int,
+    times: ArrayLike,
+    freq: float = 1.0,
 ) -> Array:
     """Create the scalar separations for a cartwheel orbit.
 
@@ -221,7 +230,7 @@ def create_cartwheel_arm_lengths(
 
     lambda_cart = 0.0
     kappa_orbit = -20.0 / 360.0 * 2 * jnp.pi
-    alpha = 2.0 * jnp.pi * FREQ_CENTER_ORBIT * times + kappa_orbit
+    alpha = 2.0 * jnp.pi * freq * times + kappa_orbit
 
     exp_1_n1 = jnp.exp(1j * (alpha - lambda_cart))
     cos_1_n1 = jnp.real(exp_1_n1)
