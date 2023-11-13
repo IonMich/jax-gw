@@ -21,4 +21,5 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Test with pytest
       run: |
+        pip install -e .
         pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
