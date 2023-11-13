@@ -1,4 +1,6 @@
 pre-commit
-black
+mypy==0.910
 mkdocs-material
 mkdocstrings-python
+pytest==7.4.3
+pytest-cov==4.1.0
