@@ -2,7 +2,8 @@ pre-commit
 mypy==0.910
 mkdocs-material
 mkdocstrings-python
-jaxlib
-jax
+jax==0.4.16
+jax-cosmo==0.1.0
+jaxlib==0.4.14
 pytest==7.4.3
 pytest-cov==4.1.0
