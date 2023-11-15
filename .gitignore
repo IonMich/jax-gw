@@ -4,3 +4,5 @@ __pycache__/
 
 *.egg-info/
 .coverage
+src/jax_gw/data/*
+src/jax_gw/output/*
