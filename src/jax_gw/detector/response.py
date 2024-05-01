@@ -221,7 +221,7 @@ def get_path_response(
         axis=-1,
         arr=indices,
     )
-    print(flat_indices)
+    # print(flat_indices)
 
     cumul_path_separations = get_cumulative_path_separations(flat_indices, arm_lengths)
     # remove the last element of each path, as it does not appear in emitter phases
@@ -315,6 +315,19 @@ def get_pairwise_differential_strain_response(
     strain_response = path_response_diff / total_time.T[..., None, None, None]
 
     return strain_response
+
+
+def create_cyclic_permutation_paths(path, N):
+    path_prime = (N - path) % N
+
+    # N-1 cyclic permutations of (path, path_prime) by adding 1 modulo N
+    paths_clockwise = jnp.mod(path + jnp.arange(N)[..., jnp.newaxis], N)
+    paths_counter_clockwise = jnp.mod(path_prime + jnp.arange(N)[..., jnp.newaxis], N)
+    interleaved_array_shape = (2 * paths_clockwise.shape[0], paths_clockwise.shape[1])
+    interleaved_array = jnp.zeros(interleaved_array_shape, dtype=path.dtype)
+    interleaved_array = interleaved_array.at[::2].set(paths_clockwise)
+    interleaved_array = interleaved_array.at[1::2].set(paths_counter_clockwise)
+    return interleaved_array
 
 
 def get_LISA_A_channel_response():
