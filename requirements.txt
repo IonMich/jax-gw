@@ -1,4 +1,3 @@
-jaxlib==0.4.16
-jax==0.4.16
+numpyro==0.14.0
 jax-cosmo==0.1.0
 
