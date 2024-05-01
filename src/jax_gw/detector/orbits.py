@@ -573,9 +573,8 @@ def earthbound_ifo_pipeline(
     y_arm = ecliptic_timeshift(y_arm_ecliptic_initial, hour_angle, EARTH_TILT)
 
     # add a rotation around this guiding center, assuming a solid body like the Earth
-    earth_radius_per_km = 6371.0
     AU_per_billion_meters = 149.597871
-    AU_per_earth_radius = (AU_per_billion_meters * 1e9) / (earth_radius_per_km * 1e3)
+    AU_per_earth_radius = (AU_per_billion_meters * 1e9) / (r_earth_in_km * 1e3)
     print(AU_per_earth_radius)
 
     r_detector = jnp.array(r_detector, dtype=jnp.float64)

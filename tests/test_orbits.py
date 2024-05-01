@@ -1,6 +1,12 @@
 import jax.numpy as jnp
 
-from jax_gw.detector.orbits import create_cartwheel_orbit, create_cartwheel_arm_lengths
+from jax_gw.detector.orbits import (
+    create_cartwheel_orbit,
+    create_cartwheel_arm_lengths,
+    create_circular_orbit_xy,
+    get_vertex_angle,
+    earthbound_ifo_pipeline,
+)
 import pytest
 
 
@@ -18,6 +24,109 @@ def test_create_cartwheel_orbit_output_shape(N, len_times, test_output_shape):
     times = jnp.linspace(0, 1, len_times)
     orbit = create_cartwheel_orbit(ecc=0, r=1, N=N, times=times)
     assert orbit.shape == test_output_shape
+
+
+def test_get_vertex_angle_ifo():
+    detector_lat = 0
+    detector_lon = 0
+    times = jnp.linspace(0, 1, 100)
+    r = 1.0
+    L_arm = 4.0
+    psi = 0.0
+    beta_arm = jnp.pi / 2
+    orbits = earthbound_ifo_pipeline(
+        lat=detector_lat,
+        lon=detector_lon,
+        times=times,
+        r=r,
+        L_arm=L_arm,
+        psi=psi,
+        beta_arm=beta_arm,
+    )
+    vertex_angle = get_vertex_angle(orbits) * 180 / jnp.pi
+    print(vertex_angle)
+    assert jnp.allclose(vertex_angle, 90, atol=1e-4)
+
+
+def test_create_circular_orbit_xy_center_loc():
+    times = jnp.linspace(0, 1, 10000)
+    r = 3.4
+    orbit = create_circular_orbit_xy(r=r, f_orb=1, times=times)
+    center_x = jnp.mean(orbit, axis=1)
+    assert jnp.allclose(center_x, 0, atol=1e-3)
+
+
+def test_earthbound_ifo_pipeline_arm_lengths():
+    detector_lat = 0
+    detector_lon = 0
+    times = jnp.linspace(0, 1, 100)
+    r = 1.0
+    L_arm = 4.0
+    psi = 0.0
+    beta_arm = jnp.pi / 2
+    orbits = earthbound_ifo_pipeline(
+        lat=detector_lat,
+        lon=detector_lon,
+        times=times,
+        r=r,
+        L_arm=L_arm,
+        psi=psi,
+        beta_arm=beta_arm,
+    )
+    km_in_AU = 149.597871 * 1e6
+    distances_01 = jnp.linalg.norm(orbits[0] - orbits[1], axis=0)
+    distances_01 = distances_01 * km_in_AU
+    distances_02 = jnp.linalg.norm(orbits[0] - orbits[2], axis=0)
+    distances_02 = distances_02 * km_in_AU
+    assert jnp.allclose(distances_01, L_arm, rtol=1e-3)
+    assert jnp.allclose(distances_02, L_arm, rtol=1e-3)
+
+
+def test_earthbound_ifo_pipeline_orbit_AU():
+    detector_lat = 0
+    detector_lon = 0
+    times = jnp.linspace(0, 1, 100)
+    r = 1.0
+    L_arm = 4.0
+    psi = 0.0
+    beta_arm = jnp.pi / 2
+    orbits_in_AU = earthbound_ifo_pipeline(
+        lat=detector_lat,
+        lon=detector_lon,
+        times=times,
+        r=r,
+        L_arm=L_arm,
+        psi=psi,
+        beta_arm=beta_arm,
+    )
+    distances_center = jnp.linalg.norm(orbits_in_AU, axis=1)
+    assert jnp.allclose(distances_center, r, rtol=1e-3)
+
+
+def test_earthbound_ifo_pipeline_planet_radius():
+    detector_lat = 0
+    detector_lon = 0
+    times = jnp.linspace(0, 1, 100)
+    r = 1.0
+    L_arm = 4.0
+    psi = 0.0
+    beta_arm = jnp.pi / 2
+    orbits = earthbound_ifo_pipeline(
+        lat=detector_lat,
+        lon=detector_lon,
+        times=times,
+        r=r,
+        L_arm=L_arm,
+        psi=psi,
+        beta_arm=beta_arm,
+    )
+    initial_orbits = orbits[:, :, 0]
+    planet_center = jnp.array([1, 0, 0])
+    delta_r = initial_orbits - planet_center
+    distances_center = jnp.linalg.norm(delta_r, axis=1)
+    r_Earth_km = 6371.0
+    km_in_AU = 149.597871 * 1e6
+    assert jnp.allclose(distances_center, r_Earth_km / km_in_AU, rtol=1e-3)
 
 
 def test_create_cartwheel_orbit_center_loc():
