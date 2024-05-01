@@ -17,6 +17,20 @@ EARTH_Z_LAT = jnp.pi / 2.0 - EARTH_TILT
 EARTH_Z_LON = -jnp.pi / 2.0
 
 
+def get_vertex_angle(orbits):
+    """
+    get the angle between the two arms of the interferometer
+    using the initial positions of the two arms
+    """
+    x_arm = (orbits[1] - orbits[0])[:, 0]
+    y_arm = (orbits[2] - orbits[0])[:, 0]
+    # get the angle between the two arms of the interferometer
+    vertex_angle = jnp.arccos(
+        jnp.dot(x_arm, y_arm) / (jnp.linalg.norm(x_arm) * jnp.linalg.norm(y_arm))
+    )
+    return vertex_angle.item()
+
+
 def create_circular_orbit_xy(r: float, f_orb: float, times: ArrayLike) -> Array:
     """Create an orbit around the Sun with x and y Arms.
 
