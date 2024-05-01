@@ -47,7 +47,7 @@ def test_create_cartwheel_orbit_distances_LISA():
     AU_per_billion_meters = 149.597871
     L_target = 2.5
     R_target = 1.0
-    ecc = L_target / (AU_per_billion_meters * 2 * jnp.sqrt(3) * R_target)
+    ecc = L_target / (AU_per_billion_meters * 2 * jnp.sqrt(3).item() * R_target)
     N_LISA = 3
     times = jnp.linspace(0, 1e5, 1000)
     orbits = create_cartwheel_orbit(ecc, R_target, N_LISA, times)
