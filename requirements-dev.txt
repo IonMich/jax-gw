@@ -6,3 +6,4 @@ numpyro==0.14.0
 jax-cosmo==0.1.0
 pytest==7.4.3
 pytest-cov==4.1.0
+matplotlib==3.8.4
