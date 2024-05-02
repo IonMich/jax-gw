@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 
+from jax_gw.detector import orbits
 from jax_gw.detector.orbits import (
     create_cartwheel_orbit,
     create_cartwheel_arm_lengths,
@@ -127,6 +128,44 @@ def test_earthbound_ifo_pipeline_planet_radius():
     r_Earth_km = 6371.0
     km_in_AU = 149.597871 * 1e6
     assert jnp.allclose(distances_center, r_Earth_km / km_in_AU, rtol=1e-3)
+
+
+def test_HL_pipeline_distance():
+    H_lat, H_lon = (
+        46.455140209119214 * jnp.pi / 180,
+        -119.40746331631823 * jnp.pi / 180,
+    )
+    L_lat, L_lon = (
+        30.56289433 * jnp.pi / 180,
+        -90.7742404 * jnp.pi / 180,
+    )
+    times = jnp.linspace(0, 1, 100)
+    r = 1.0
+    L_arm = 4.0
+    psi_H = (90 + 36) * jnp.pi / 180
+    psi_L = (180 + 18) * jnp.pi / 180
+    beta_arm = jnp.pi / 2
+    orbits_H = earthbound_ifo_pipeline(
+        lat=H_lat,
+        lon=H_lon,
+        times=times,
+        r=r,
+        L_arm=L_arm,
+        psi=psi_H,
+        beta_arm=beta_arm,
+    )
+    orbits_L = earthbound_ifo_pipeline(
+        lat=L_lat,
+        lon=L_lon,
+        times=times,
+        r=r,
+        L_arm=L_arm,
+        psi=psi_L,
+        beta_arm=beta_arm,
+    )
+    distances = jnp.linalg.norm(orbits_H - orbits_L, axis=1)
+    km_in_AU = 149.597871 * 1e6
+    assert jnp.allclose(distances * km_in_AU, 3000, rtol=2e-3)
 
 
 def test_create_cartwheel_orbit_center_loc():
