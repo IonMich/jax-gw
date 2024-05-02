@@ -1,6 +1,5 @@
 import jax.numpy as jnp
 
-from jax_gw.detector import orbits
 from jax_gw.detector.orbits import (
     create_cartwheel_orbit,
     create_cartwheel_arm_lengths,
