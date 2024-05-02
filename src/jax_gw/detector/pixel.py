@@ -2,20 +2,22 @@
 
 This module contains functions for calculating the sky geometry.
 """
+
 import jax
 from jax import Array
 import jax.numpy as jnp
 from jax.scipy.special import lpmn_values
+from jax.typing import ArrayLike
 
 
-def get_directional_basis(ecl_theta: float, ecl_phi: float) -> Array:
+def get_directional_basis(ecl_theta: ArrayLike, ecl_phi: ArrayLike) -> Array:
     """Calculate the directional basis for a given source direction.
 
     Parameters
     ----------
-    ecl_theta : float
+    ecl_theta : ArrayLike
         Ecliptic latitude of the source.
-    ecl_phi : float
+    ecl_phi : ArrayLike
         Ecliptic phi of the source.
 
     Returns
